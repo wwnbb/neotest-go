@@ -117,8 +117,11 @@ end
 ---@return neotest.RunSpec
 function adapter.build_spec(args)
   local strategy = args.strategy
+  local func_name = utils.get_prefix(args.tree, args.position.name)
   print(strategy)
   print(args)
+  print(func_name)
+  local func_name =
   local results_path = async.fn.tempname()
   local position = args.tree:data()
   local dir = position.path
@@ -134,7 +137,7 @@ function adapter.build_spec(args)
     -- fails if it has external dependencies
     file = { dir .. "/..." },
     namespace = { package },
-    test = { "-run", utils.get_prefix(args.tree, position.name) .. "\\$", dir },
+    test = { "-run", func_name .. "\\$", dir },
   })[position.type]
 
   local command = vim.tbl_flatten({
@@ -146,6 +149,7 @@ function adapter.build_spec(args)
     vim.list_extend(get_args(), args.extra_args or {}),
     unpack(cmd_args),
   })
+
   result = {
     command = table.concat(command, " "),
     context = {
