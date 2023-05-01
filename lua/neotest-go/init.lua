@@ -117,13 +117,14 @@ end
 ---@return neotest.RunSpec
 function adapter.build_spec(args)
   local strategy = args.strategy
-  local func_name = utils.get_prefix(args.tree, args.position.name)
+  print(vim.inspect(args))
   print(strategy)
-  print(args)
-  print(func_name)
   local results_path = async.fn.tempname()
   local position = args.tree:data()
   local dir = position.path
+
+  local func_name = utils.get_prefix(args.tree, args.position.name)
+  print(func_name)
   -- The path for the position is not a directory, ensure the directory variable refers to one
   if fn.isdirectory(position.path) ~= 1 then
     dir = fn.fnamemodify(position.path, ":h")
