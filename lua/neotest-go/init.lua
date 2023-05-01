@@ -121,7 +121,6 @@ function adapter.build_spec(args)
   print(strategy)
   print(args)
   print(func_name)
-  local func_name =
   local results_path = async.fn.tempname()
   local position = args.tree:data()
   local dir = position.path
