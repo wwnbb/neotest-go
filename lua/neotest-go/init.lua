@@ -123,7 +123,7 @@ function adapter.build_spec(args)
   local position = args.tree:data()
   local dir = position.path
 
-  local func_name = utils.get_prefix(args.tree, args.position.name)
+  local func_name = utils.get_prefix(args.tree, position.name)
   print(func_name)
   -- The path for the position is not a directory, ensure the directory variable refers to one
   if fn.isdirectory(position.path) ~= 1 then
