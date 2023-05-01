@@ -116,6 +116,9 @@ end
 ---@param args neotest.RunArgs
 ---@return neotest.RunSpec
 function adapter.build_spec(args)
+  local strategy = args.strategy
+  print(strategy)
+  print(args)
   local results_path = async.fn.tempname()
   local position = args.tree:data()
   local dir = position.path
@@ -143,13 +146,14 @@ function adapter.build_spec(args)
     vim.list_extend(get_args(), args.extra_args or {}),
     unpack(cmd_args),
   })
-  return {
+  result = {
     command = table.concat(command, " "),
     context = {
       results_path = results_path,
       file = position.path,
     },
   }
+  return result
 end
 
 ---@async
