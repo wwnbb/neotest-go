@@ -117,8 +117,6 @@ end
 ---@return neotest.RunSpec
 function adapter.build_spec(args)
   local strategy = args.strategy
-  print(vim.inspect(args))
-  print(strategy)
   local results_path = async.fn.tempname()
   local position = args.tree:data()
   local dir = position.path
@@ -138,7 +136,10 @@ function adapter.build_spec(args)
     file = { dir .. "/..." },
     namespace = { package },
     test = { "-run", func_name .. "\\$", dir },
-  })[position.type]
+  })
+  P(cmd_args)
+
+  local cmd_args = cmd_args[position.type]
 
   local command = vim.tbl_flatten({
     "go",
@@ -157,6 +158,7 @@ function adapter.build_spec(args)
       file = position.path,
     },
   }
+  P(result)
   return result
 end
 
