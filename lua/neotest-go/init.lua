@@ -70,7 +70,7 @@ function adapter.discover_positions(path)
   if get_experimental_opts().test_table then
     query = query
       .. [[
-;; query
+;; query for list table tests
     (block
       (short_var_declaration
         left: (expression_list
@@ -80,7 +80,7 @@ function adapter.discover_positions(path)
             (literal_value
               (literal_element
                 (literal_value
-                  .(keyed_element
+                  (keyed_element
                     (literal_element
                       (identifier) @test.field.name)
                     (literal_element
@@ -92,6 +92,7 @@ function adapter.discover_positions(path)
           right: (identifier) @test.cases1
             (#eq? @test.cases @test.cases1))
         body: (block
+         (expression_statement
           (call_expression
             function: (selector_expression
               field: (field_identifier) @test.method)
@@ -101,7 +102,37 @@ function adapter.discover_positions(path)
                 operand: (identifier) @test.case1
                 (#eq? @test.case @test.case1)
                 field: (field_identifier) @test.field.name1
-                (#eq? @test.field.name @test.field.name1)))))))
+                (#eq? @test.field.name @test.field.name1))))))))
+
+;; query for map table tests 
+	(block
+      (short_var_declaration
+        left: (expression_list
+          (identifier) @test.cases)
+        right: (expression_list
+          (composite_literal
+            (literal_value
+              (keyed_element
+            	(literal_element
+                  (interpreted_string_literal)  @test.name)
+                (literal_element
+                  (literal_value)  @test.definition))))))
+	  (for_statement
+       (range_clause
+          left: (expression_list
+            ((identifier) @test.key.name)
+            ((identifier) @test.case))
+          right: (identifier) @test.cases1
+            (#eq? @test.cases @test.cases1))
+	      body: (block
+           (expression_statement
+            (call_expression
+              function: (selector_expression
+                field: (field_identifier) @test.method)
+                (#match? @test.method "^Run$")
+                arguments: (argument_list
+                ((identifier) @test.key.name1
+                (#eq? @test.key.name @test.key.name1))))))))
     ]]
   end
 
@@ -130,10 +161,10 @@ function adapter.build_spec(args)
   local package = utils.get_go_package_name(position.path)
 
   local cmd_args = ({
-    dir = { dir .. "/..." },
+    dir = { "./..." },
     -- file is the same as dir because running a single test file
     -- fails if it has external dependencies
-    file = { dir .. "/..." },
+    file = { "./..." },
     namespace = { package },
     test = { "-run", func_name .. "\\$", dir },
   })
@@ -142,6 +173,9 @@ function adapter.build_spec(args)
   local cmd_args = cmd_args[position.type]
 
   local command = vim.tbl_flatten({
+    "cd",
+    dir,
+    "&&",
     "go",
     "test",
     "-v",
@@ -229,7 +263,7 @@ function adapter.prepare_results(tree, lines, go_root, go_module)
         if errors then
           results[value.id].errors = errors
         end
-        if test_result.status == test_statuses.fail then
+        if test_result.status == test_statuses.fail and file_id then
           results[file_id].status = test_statuses.fail
         end
       end
